@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react"; // Added useEffect
 import { useAuthStore } from "../../store/useAuthStore";
 import AuthImagePattern from "../../components/AuthImagePattern";
-import Link from "next/link"; 
+import Link from "next/link";
 import { Eye, EyeOff, Loader2, Lock, Mail, MessageSquare } from "lucide-react";
+import { useRouter } from "next/navigation"; // Added useRouter
 
 const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -12,11 +13,21 @@ const LoginPage = () => {
     email: "",
     password: "",
   });
-  const { login, isLoggingIn } = useAuthStore();
+  
+  const { login, isLoggingIn, authUser } = useAuthStore(); // Added authUser
+  const router = useRouter(); // Initialize router
+
+  // Redirect to home if user is already logged in
+  useEffect(() => {
+    if (authUser) {
+      router.push("/");
+    }
+  }, [authUser, router]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    login(formData);
+    await login(formData);
+    // The useEffect above will handle the redirect once authUser updates
   };
 
   return (
@@ -45,7 +56,7 @@ const LoginPage = () => {
                 <span className="label-text font-medium">Email</span>
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
                   <Mail className="h-5 w-5 text-base-content/40" />
                 </div>
                 <input
@@ -63,7 +74,7 @@ const LoginPage = () => {
                 <span className="label-text font-medium">Password</span>
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
                   <Lock className="h-5 w-5 text-base-content/40" />
                 </div>
                 <input
@@ -102,7 +113,6 @@ const LoginPage = () => {
           <div className="text-center">
             <p className="text-base-content/60">
               Don&apos;t have an account?{" "}
-              {/* CHANGED: Link to -> Link href */}
               <Link href="/signup" className="link link-primary">
                 Create account
               </Link>

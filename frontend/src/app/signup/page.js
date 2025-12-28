@@ -1,11 +1,12 @@
-"use client"; 
+"use client";
 
-import { useState } from "react";
-import { useAuthStore } from "../../store/useAuthStore"; 
+import { useState, useEffect } from "react"; // Added useEffect
+import { useAuthStore } from "../../store/useAuthStore";
 import { Eye, EyeOff, Loader2, Lock, Mail, MessageSquare, User } from "lucide-react";
-import Link from "next/link"; 
-import AuthImagePattern from "../../components/AuthImagePattern"; 
+import Link from "next/link";
+import AuthImagePattern from "../../components/AuthImagePattern";
 import toast from "react-hot-toast";
+import { useRouter } from "next/navigation"; // Added useRouter
 
 const SignUpPage = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -15,7 +16,16 @@ const SignUpPage = () => {
     password: "",
   });
 
-  const { signup, isSigningUp } = useAuthStore();
+  // Added authUser to destructuring
+  const { signup, isSigningUp, authUser } = useAuthStore();
+  const router = useRouter(); // Initialize router
+
+  // Redirect to home if user is already logged in (or just signed up)
+  useEffect(() => {
+    if (authUser) {
+      router.push("/");
+    }
+  }, [authUser, router]);
 
   const validateForm = () => {
     if (!formData.fullName.trim()) return toast.error("Full name is required");
@@ -30,6 +40,7 @@ const SignUpPage = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     const success = validateForm();
+    // Once signup is successful, the store updates authUser, triggering the useEffect above
     if (success === true) signup(formData);
   };
 
@@ -58,7 +69,7 @@ const SignUpPage = () => {
                 <span className="label-text font-medium">Full Name</span>
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
                   <User className="size-5 text-base-content/40" />
                 </div>
                 <input
@@ -76,7 +87,7 @@ const SignUpPage = () => {
                 <span className="label-text font-medium">Email</span>
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
                   <Mail className="size-5 text-base-content/40" />
                 </div>
                 <input
@@ -94,7 +105,7 @@ const SignUpPage = () => {
                 <span className="label-text font-medium">Password</span>
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
                   <Lock className="size-5 text-base-content/40" />
                 </div>
                 <input
@@ -133,7 +144,6 @@ const SignUpPage = () => {
           <div className="text-center">
             <p className="text-base-content/60">
               Already have an account?{" "}
-              {/* CHANGED: Link to -> Link href */}
               <Link href="/login" className="link link-primary">
                 Sign in
               </Link>
