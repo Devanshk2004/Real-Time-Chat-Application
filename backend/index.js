@@ -11,13 +11,19 @@ import authRoutes from "./src/routes/auth.route.js";
 import messageRoutes from "./src/routes/message.route.js";
 import { app, server } from "./src/lib/socket.js";
 
+import aiRoutes from "./src/routes/ai.route.js";
+
 dotenv.config();
 
 const PORT = process.env.PORT;
 const __dirname = path.resolve();
 
-app.use(express.json());
+
+app.use(express.json({ limit: "10mb" })); 
+app.use(express.urlencoded({ limit: "10mb", extended: true }));
+//app.use(express.json());
 app.use(cookieParser());
+
 app.use(
   cors({
     origin: ["http://localhost:5173", process.env.CLIENT_URL],
@@ -27,6 +33,7 @@ app.use(
 
 app.use("/api/auth", authRoutes);
 app.use("/api/messages", messageRoutes);
+app.use("/api/ai", aiRoutes);
 
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "../frontend/dist")));

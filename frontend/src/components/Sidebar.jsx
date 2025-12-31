@@ -4,11 +4,18 @@ import { useEffect, useState } from "react";
 import { useChatStore } from "../store/useChatStore";
 import { useAuthStore } from "../store/useAuthStore";
 import SidebarSkeleton from "../components/skeletons/SidebarSkeleton";
-import { Users } from "lucide-react";
+import { Users, Bot } from "lucide-react";
+
+// UPDATED: Name and Photo
+const AI_USER = {
+  _id: "555555555555555555555555",
+  email: "ai@gemini.com",
+  fullName: "Your AI Friend",
+  profilePic: "/aifriend.jpg", // Make sure this image exists in /public
+};
 
 const Sidebar = () => {
   const { getUsers, users, selectedUser, setSelectedUser, isUsersLoading } = useChatStore();
-
   const { onlineUsers } = useAuthStore();
   const [showOnlineOnly, setShowOnlineOnly] = useState(false);
 
@@ -29,7 +36,6 @@ const Sidebar = () => {
           <Users className="size-6" />
           <span className="font-medium hidden lg:block">Contacts</span>
         </div>
-        {/* TODO: Online filter toggle */}
         <div className="mt-3 hidden lg:flex items-center gap-2">
           <label className="cursor-pointer flex items-center gap-2">
             <input
@@ -45,6 +51,45 @@ const Sidebar = () => {
       </div>
 
       <div className="overflow-y-auto w-full py-3">
+        {/* GEMINI AI BUTTON */}
+        <button
+          onClick={() => setSelectedUser(AI_USER)}
+          className={`
+            w-full p-3 flex items-center gap-3
+            hover:bg-base-300 transition-colors
+            ${selectedUser?._id === AI_USER._id ? "bg-base-300 ring-1 ring-base-300" : ""}
+          `}
+        >
+          <div className="relative mx-auto lg:mx-0">
+            <div className="size-12 rounded-full bg-blue-100 flex items-center justify-center object-cover">
+               {/* Use the image if available, else fallback to icon */}
+               <img 
+                 src={AI_USER.profilePic} 
+                 alt="AI" 
+                 className="size-12 rounded-full object-cover"
+                 onError={(e) => {e.target.style.display='none'; e.target.nextSibling.style.display='flex'}} 
+               />
+               <div className="hidden size-12 rounded-full bg-blue-100 items-center justify-center">
+                  <Bot className="size-8 text-blue-600" />
+               </div>
+               
+               {/* FORCE ONLINE STATUS: Green Dot always visible */}
+               <span
+                  className="absolute bottom-0 right-0 size-3 bg-green-500 
+                  rounded-full ring-2 ring-zinc-900"
+                />
+            </div>
+          </div>
+          <div className="hidden lg:block text-left min-w-0">
+            <div className="font-medium truncate">{AI_USER.fullName}</div>
+            <div className="text-sm text-green-500">Online</div> 
+          </div>
+        </button>
+
+        {/* SEPARATOR */}
+        <div className="divider my-0 px-3 opacity-50"></div>
+
+        {/* REGULAR USERS */}
         {filteredUsers.map((user) => (
           <button
             key={user._id}
@@ -69,7 +114,6 @@ const Sidebar = () => {
               )}
             </div>
 
-            {/* User info - only visible on larger screens */}
             <div className="hidden lg:block text-left min-w-0">
               <div className="font-medium truncate">{user.fullName}</div>
               <div className="text-sm text-zinc-400">
@@ -87,3 +131,4 @@ const Sidebar = () => {
   );
 };
 export default Sidebar;
+
