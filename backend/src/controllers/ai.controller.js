@@ -25,12 +25,20 @@ export const chatWithGemini = async (req, res) => {
     });
     await userMessage.save();
 
-    // 2. Get AI Response
-    // Optional: Fetch previous context here if you want conversation history
-    const result = await model.generateContent(text);
+    // 2. Define the "Friend" Persona
+    const prompt = `
+      You are a friendly, casual, and supportive AI friend. 
+      Do not act like a robot or an assistant. 
+      Use emojis occasionally. Keep responses concise and conversational.
+      
+      User says: ${text}
+    `;
+
+    // 3. Get AI Response
+    const result = await model.generateContent(prompt);
     const aiResponseText = result.response.text();
 
-    // 3. Save AI message to DB
+    // 4. Save AI message to DB
     const aiMessage = new Message({
       senderId: AI_ID,
       receiverId: myId,
@@ -38,7 +46,7 @@ export const chatWithGemini = async (req, res) => {
     });
     await aiMessage.save();
 
-    // 4. Return the AI's message to the frontend to update the UI immediately
+    // 5. Return the AI's message
     res.status(200).json(aiMessage);
 
   } catch (error) {

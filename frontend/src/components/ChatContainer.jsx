@@ -17,15 +17,14 @@ const ChatContainer = () => {
     selectedUser,
     subscribeToMessages,
     unsubscribeFromMessages,
+    isAiTyping, // Get typing state
   } = useChatStore();
   const { authUser } = useAuthStore();
   const messageEndRef = useRef(null);
 
   useEffect(() => {
     getMessages(selectedUser._id);
-
     subscribeToMessages();
-
     return () => unsubscribeFromMessages();
   }, [selectedUser._id, getMessages, subscribeToMessages, unsubscribeFromMessages]);
 
@@ -33,7 +32,7 @@ const ChatContainer = () => {
     if (messageEndRef.current && messages) {
       messageEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [messages]);
+  }, [messages, isAiTyping]); // Scroll when typing starts too
 
   if (isMessagesLoading) {
     return (
@@ -85,6 +84,29 @@ const ChatContainer = () => {
             </div>
           </div>
         ))}
+
+        {/* AI TYPING INDICATOR */}
+        {isAiTyping && (
+           <div className="chat chat-start">
+              <div className="chat-image avatar">
+                <div className="size-10 rounded-full border">
+                  <img
+                    src={selectedUser.profilePic || "/avatar.png"}
+                    alt="AI Typing"
+                  />
+                </div>
+              </div>
+              <div className="chat-header mb-1">
+                 <span className="text-xs opacity-50 ml-1">Typing...</span>
+              </div>
+              <div className="chat-bubble bg-base-200 text-base-content">
+                 <span className="loading loading-dots loading-sm"></span>
+              </div>
+           </div>
+        )}
+
+        {/* Invisible div to scroll to */}
+        <div ref={messageEndRef}></div>
       </div>
 
       <MessageInput />
@@ -92,3 +114,4 @@ const ChatContainer = () => {
   );
 };
 export default ChatContainer;
+
