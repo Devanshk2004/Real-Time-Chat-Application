@@ -11,7 +11,7 @@ export const useChatStore = create((set, get) => ({
   selectedUser: null,
   isUsersLoading: false,
   isMessagesLoading: false,
-  isAiTyping: false, // NEW STATE: To track if AI is thinking
+  isAiTyping: false,
 
   getUsers: async () => {
     set({ isUsersLoading: true });
@@ -80,6 +80,21 @@ export const useChatStore = create((set, get) => ({
     }
   },
 
+  // --- NEW FUNCTION: DELETE CHAT ---
+  deleteChat: async () => {
+    const { selectedUser } = get();
+    if (!selectedUser) return;
+
+    try {
+      await axiosInstance.delete(`/messages/delete/${selectedUser._id}`);
+      set({ messages: [] });
+      toast.success("Chat deleted successfully");
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to delete chat");
+    }
+  },
+  // ---------------------------------
+
   subscribeToMessages: () => {
     const { selectedUser } = get();
     if (!selectedUser) return;
@@ -103,3 +118,4 @@ export const useChatStore = create((set, get) => ({
 
   setSelectedUser: (selectedUser) => set({ selectedUser }),
 }));
+

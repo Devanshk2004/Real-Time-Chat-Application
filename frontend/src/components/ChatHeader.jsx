@@ -1,12 +1,24 @@
 "use client";
 
-import { X } from "lucide-react";
+import { X, Trash2 } from "lucide-react"; // Added Trash2 icon
 import { useAuthStore } from "../store/useAuthStore";
 import { useChatStore } from "../store/useChatStore";
 
 const ChatHeader = () => {
-  const { selectedUser, setSelectedUser } = useChatStore();
+  const { selectedUser, setSelectedUser, deleteChat } = useChatStore(); // Get deleteChat
   const { onlineUsers } = useAuthStore();
+
+  const handleDeleteChat = () => {
+    if (!selectedUser) return;
+    
+    const isConfirmed = window.confirm(
+      `Are you sure you want to delete the chat history with ${selectedUser.fullName}?`
+    );
+
+    if (isConfirmed) {
+      deleteChat();
+    }
+  };
 
   return (
     <div className="p-2.5 border-b border-base-300">
@@ -28,10 +40,22 @@ const ChatHeader = () => {
           </div>
         </div>
 
-        {/* Close button */}
-        <button onClick={() => setSelectedUser(null)}>
-          <X />
-        </button>
+        {/* Buttons */}
+        <div className="flex items-center gap-2">
+           {/* DELETE BUTTON */}
+          <button 
+            onClick={handleDeleteChat} 
+            className="btn btn-ghost btn-sm btn-circle text-error hover:bg-error/10"
+            title="Delete Chat"
+          >
+            <Trash2 className="size-5" />
+          </button>
+
+          {/* CLOSE BUTTON */}
+          <button onClick={() => setSelectedUser(null)} className="btn btn-ghost btn-sm btn-circle">
+            <X className="size-5" />
+          </button>
+        </div>
       </div>
     </div>
   );

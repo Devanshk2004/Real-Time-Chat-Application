@@ -28,7 +28,6 @@ export const signup = async (req, res) => {
     });
 
     if (newUser) {
-      // generate jwt token here
       generateToken(newUser._id, res);
       await newUser.save();
 
@@ -113,6 +112,32 @@ export const checkAuth = (req, res) => {
     res.status(200).json(req.user);
   } catch (error) {
     console.log("Error in checkAuth controller", error.message);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+export const deleteAccount = async (req, res) => {
+  try {
+    const { password } = req.body;
+    const userId = req.user._id;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Verify Password
+    const isPasswordCorrect = await bcrypt.compare(password, user.password);
+    if (!isPasswordCorrect) {
+      return res.status(400).json({ message: "Invalid password" });
+    }
+
+    // Delete User
+    await User.findByIdAndDelete(userId);
+
+    res.status(200).json({ message: "Account deleted successfully" });
+  } catch (error) {
+    console.log("Error in deleteAccount controller:", error.message);
     res.status(500).json({ message: "Internal Server Error" });
   }
 };

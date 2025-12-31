@@ -2,18 +2,19 @@
 
 import { useState } from "react";
 import { useAuthStore } from "../../store/useAuthStore";
-import { Camera, Mail, User } from "lucide-react";
+import { Camera, Mail, User, Trash2, Lock } from "lucide-react";
 
 const ProfilePage = () => {
-  const { authUser, isUpdatingProfile, updateProfile } = useAuthStore();
+  const { authUser, isUpdatingProfile, updateProfile, deleteAccount } = useAuthStore();
   const [selectedImg, setSelectedImg] = useState(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [password, setPassword] = useState("");
 
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
     const reader = new FileReader();
-
     reader.readAsDataURL(file);
 
     reader.onload = async () => {
@@ -21,6 +22,11 @@ const ProfilePage = () => {
       setSelectedImg(base64Image);
       await updateProfile({ profilePic: base64Image });
     };
+  };
+
+  const handleDeleteAccount = async () => {
+    if (!password) return;
+    await deleteAccount(password);
   };
 
   return (
@@ -33,7 +39,6 @@ const ProfilePage = () => {
           </div>
 
           {/* avatar upload section */}
-
           <div className="flex flex-col items-center gap-4">
             <div className="relative">
               <img
@@ -85,8 +90,9 @@ const ProfilePage = () => {
             </div>
           </div>
 
+          {/* Account Information */}
           <div className="mt-6 bg-base-300 rounded-xl p-6">
-            <h2 className="text-lg font-medium  mb-4">Account Information</h2>
+            <h2 className="text-lg font-medium mb-4">Account Information</h2>
             <div className="space-y-3 text-sm">
               <div className="flex items-center justify-between py-2 border-b border-zinc-700">
                 <span>Member Since</span>
@@ -96,8 +102,59 @@ const ProfilePage = () => {
                 <span>Account Status</span>
                 <span className="text-green-500">Active</span>
               </div>
+              
+              {/* DELETE ACCOUNT SECTION */}
+              <div className="flex items-center justify-between py-2 border-t border-zinc-700 pt-4 mt-4">
+                 {!showDeleteConfirm ? (
+                    <>
+                        {/* Left Side: Red Text */}
+                        <span className="text-error font-medium">Delete Account</span>
+                        
+                        {/* Right Side: Red Button */}
+                        <button 
+                            onClick={() => setShowDeleteConfirm(true)}
+                            className="btn btn-sm btn-error text-white"
+                        >
+                            <Trash2 className="size-4" /> Delete Account
+                        </button>
+                    </>
+                 ) : (
+                    /* Password Confirmation View */
+                    <div className="w-full animate-in fade-in slide-in-from-right-4">
+                        <div className="flex items-center gap-2 justify-end">
+                            <div className="relative w-full max-w-xs">
+                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <Lock className="size-4 text-base-content/40" />
+                                </div>
+                                <input
+                                    type="password"
+                                    placeholder="Password to confirm"
+                                    className="input input-sm input-bordered w-full pl-10"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    autoFocus
+                                />
+                            </div>
+                            <button 
+                                onClick={handleDeleteAccount}
+                                className="btn btn-sm btn-error text-white"
+                                disabled={!password || isUpdatingProfile}
+                            >
+                                {isUpdatingProfile ? "..." : "Confirm"}
+                            </button>
+                            <button 
+                                onClick={() => {setShowDeleteConfirm(false); setPassword("");}}
+                                className="btn btn-sm btn-ghost"
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                 )}
+              </div>
             </div>
           </div>
+
         </div>
       </div>
     </div>
