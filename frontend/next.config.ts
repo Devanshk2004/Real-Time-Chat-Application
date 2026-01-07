@@ -1,10 +1,12 @@
-/** @type {import('next').NextConfig} */
-const nextConfig = {
-  output: "export",      // Exports static HTML/CSS/JS
-  distDir: "dist",       // Changes output folder from .next to dist
+import type { NextConfig } from "next";
+
+const nextConfig: NextConfig = {
+  output: "export",
+  distDir: "dist",
   images: {
-    unoptimized: true,   // Required for static export
+    unoptimized: true,
   },
+  // @ts-expect-error This property is valid at runtime but missing from some type definitions
   eslint: {
     ignoreDuringBuilds: true,
   },
