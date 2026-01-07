@@ -1,8 +1,8 @@
 import axios from "axios";
 
 export const axiosInstance = axios.create({
-  // In Next.js, we use NEXT_PUBLIC_ for client-side env vars
-  baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001/api",
+  // Logic: If we are in development (local), use localhost.
+  // If we are in production (Render), use the relative path "/api".
+  baseURL: process.env.NODE_ENV === "development" ? "http://localhost:5001/api" : "/api",
   withCredentials: true,
 });
-
