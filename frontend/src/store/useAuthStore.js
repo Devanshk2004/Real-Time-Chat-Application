@@ -3,8 +3,10 @@ import { axiosInstance } from "../lib/axios";
 import toast from "react-hot-toast";
 import { io } from "socket.io-client";
 
-// FIX: Use process.env for Next.js
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:5001";
+// FIX: Dynamic Base URL based on environment
+// In Dev: Connect to localhost:5001
+// In Prod: Connect to "/" (current domain)
+const BASE_URL = process.env.NODE_ENV === "development" ? "http://localhost:5001" : "/";
 
 export const useAuthStore = create((set, get) => ({
   authUser: null,
@@ -82,14 +84,14 @@ export const useAuthStore = create((set, get) => ({
   },
 
   deleteAccount: async (password) => {
-    set({ isUpdatingProfile: true }); // Reuse loading state
+    set({ isUpdatingProfile: true }); 
     try {
       await axiosInstance.delete("/auth/delete-account", {
-        data: { password }, // Send password in body
+        data: { password }, 
       });
-      set({ authUser: null }); // Clear user from store
+      set({ authUser: null }); 
       toast.success("Account deleted successfully");
-      get().disconnectSocket(); // Disconnect socket
+      get().disconnectSocket(); 
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to delete account");
     } finally {
@@ -114,6 +116,7 @@ export const useAuthStore = create((set, get) => ({
       set({ onlineUsers: userIds });
     });
   },
+  
   disconnectSocket: () => {
     if (get().socket?.connected) get().socket.disconnect();
   },
